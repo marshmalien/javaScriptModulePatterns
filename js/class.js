@@ -1,6 +1,7 @@
 /* Namespaces are just normal javaScript objects */
 
 var personGenerator = (function() {
+
   var loadingIcon = {
     show: function() {
       var source = $('#loading').html();
@@ -14,6 +15,12 @@ var personGenerator = (function() {
       $('.loader').remove();
     }
   };
+
+  function updateCount() {
+    var count = $('.person-container').length;
+    var message = count === 1 ? count + ' Person Created' : count + ' People Created';
+    $('.people-count').text(message);
+  }
 
   // constructor inside of a namespace object
   function Person(data) {
@@ -51,17 +58,47 @@ var personGenerator = (function() {
       success: function(rawData) {
         loadingIcon.hide();
         var newPerson = new Person(rawData.results[0]);
-        console.log(newPerson);
+        updateCount();
       }
     });
   }
+  function deletePerson() {
+    console.log('delete');
+  }
+
+  var selectedPeople = {
+    toggleDeleteButton: function() {
+      $('.delete-button').fadeToggle();
+    },
+    deleteRecords: function() {
+      $('.person-container.active').remove();
+      this.toggleDeleteButton();
+      updateCount();
+    }
+  };
 
   function init() {
     Handlebars.registerHelper('get-full-name', function(nameObj) {
       return nameObj.first + ' ' + nameObj.last;
     });
+
     $('.container').on('click', '.person-button', function() {
       makePerson(); // ajax call
+    });
+
+    $('.people-container').on('click', '.person-container', function() {
+      console.log('selected');
+      var lastCount = $('.person-container.active').length;
+      $(this).toggleClass('active');
+      var currentCount = $('.person-container.active').length;
+
+      if (lastCount === 0 || (lastCount === 1 && currentCount === 0)) {
+        selectedPeople.toggleDeleteButton();
+      }
+    });
+
+    $('.container').on('click', '.delete-button', function() {
+      selectedPeople.deleteRecords();
     });
   }
   init();
