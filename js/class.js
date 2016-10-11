@@ -49,6 +49,14 @@ var personGenerator = (function() {
     this.createTemplate();
   }
 
+  function updateSettings(customSettings) {
+    if (typeof customSettings === 'object') {
+      settings = customSettings;
+    } else {
+      console.log('Settings provided were in an incorrect form');
+    }
+  }
+
   // ajax call to get one person
   function makePerson() {
     loadingIcon.show();
@@ -82,9 +90,9 @@ var personGenerator = (function() {
       return nameObj.first + ' ' + nameObj.last;
     });
 
-    $('.container').on('click', '.person-button', function() {
-      makePerson(); // ajax call
-    });
+    // $('.container').on('click', '.person-button', function() {
+    //   makePerson(); // ajax call
+    // });
 
     $('.people-container').on('click', '.person-container', function() {
       console.log('selected');
@@ -101,5 +109,23 @@ var personGenerator = (function() {
       selectedPeople.deleteRecords();
     });
   }
-  init();
+  return {
+    run: init,
+    create: makePerson,
+    customSettings: updateSettings
+  };
+
+  // init();
 })();
+
+
+// revealing module pattern
+personGenerator.run();
+personGenerator.customSettings({
+  nationality: 'fr',
+  gender: 'male'
+});
+
+$('.container').on('click', '.person-button', function() {
+  personGenerator.create();
+});
